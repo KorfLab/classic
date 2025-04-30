@@ -1,0 +1,97 @@
+import argparse
+import gzip
+import sys
+
+def anti(seq):
+	comp = str.maketrans('ACGTRYMKWSBDHV', 'TGCAYRKMWSVHDB')
+	anti = seq.translate(comp)[::-1]
+	return anti
+
+def getfp(filename):
+	if   filename.endswith('.gz'):
+		return gzip.open(filename, 'rt', encoding='ISO-8859-1')
+	else:
+		return open(filename, encoding='ISO-8859-1')
+
+def readfasta(filename):
+	name = None
+	seqs = []
+	fp = getfp(filename)
+	while True:
+		line = fp.readline()
+		if line == '': break
+		line = line.rstrip()
+		if line.startswith('>'):
+			if len(seqs) > 0:
+				seq = ''.join(seqs)
+				yield(name, seq)
+				name = line[1:]
+				seqs = []
+			else:
+				name = line[1:]
+		else:
+			seqs.append(line)
+	yield(name, ''.join(seqs))
+	fp.close()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('fasta')
+parser.add_argument('gff')
+arg = parser.parse_args()
+
+genome = {}
+fp = getfp(arg.gff)
+for line in fp:
+	if line.startswith('#'): continue
+	f = line.split('\t')
+	if f[2] != 'exon': continue
+	chrom = f[0]
+	if chrom not in genome: genome[chrom] = {}
+	tid = f[8].split(';')[2][7:]
+	if tid not in genome[chrom]: genome[chrom][tid] = []
+	genome[chrom][tid].append({
+		'beg': int(f[3]),
+		'end': int(f[4]),
+		'str': f[6]})
+
+seq2gff = {
+	'1': 'Chr1',
+	'2': 'Chr2',
+	'3': 'Chr3',
+	'4': 'Chr4',
+	'5': 'Chr5',
+	'mitochondria': 'ChrM',
+	'chloroplast': 'ChrC'
+}
+
+for defline, seq in readfasta(arg.fasta):
+	f = defline.split()
+	chrom = seq2gff[f[0]]
+	for tid, exons in genome[chrom].items():
+		gmin = exons[0]['beg']
+		gmax = exons[-1]['end']
+		flip = False
+		introns = []
+		for i in range(1, len(exons)):
+			ib = exons[i-1]['end'] +1
+			ie = exons[i]['beg'] -1
+			iseq = seq[ib-1:ie]
+			if exons[i]['str'] == '+':
+				rb = ib - gmin + 1
+				re = ie - gmin + 1
+				N = i
+			else:
+				flip = True
+				iseq = anti(iseq)
+				re = gmax - ib + 1
+				rb = gmax - ie + 1
+				N = len(exons) - i
+			S = 'FORWARD' if exons[i]['str'] == '+' else 'REVERSE'
+			L = ie - ib +1
+			introns.append((f'>{tid}-{N}|{rb}-{re}|{chrom}:{ib}-{ie} {S} LENGTH={L}', iseq))
+		if len(introns) == 0: continue
+		if flip: introns.reverse()
+		for defline, iseq in introns:
+			print(defline)
+			for i in range(0, len(iseq), 80):
+				print(iseq[i:i+80])
