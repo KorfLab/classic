@@ -37,6 +37,10 @@ def readfasta(filename):
 parser = argparse.ArgumentParser()
 parser.add_argument('fasta')
 parser.add_argument('gff')
+parser.add_argument('--min-intron', type=int, default=60,
+	help='minimum intron length [%(default)i]')
+parser.add_argument('--max-intron', type=int, default=600,
+	help='maximum intron length [%(default)i]')
 arg = parser.parse_args()
 
 genome = {}
@@ -75,6 +79,9 @@ for defline, seq in readfasta(arg.fasta):
 		for i in range(1, len(exons)):
 			ib = exons[i-1]['end'] +1
 			ie = exons[i]['beg'] -1
+			ilength = ie - ib + 1
+			if ilength < arg.min_intron: continue
+			if ilength > arg.max_intron: continue
 			iseq = seq[ib-1:ie]
 			if exons[i]['str'] == '+':
 				rb = ib - gmin + 1
