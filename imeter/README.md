@@ -10,7 +10,7 @@ imeter
 
 - `tpc2000543.pdf` is the first publication
 - `978-1-60327-563-7_14.pdf` is a good introduction to the guts of the IMEter
-- `extract-introns-correctly.py` gets data for training
+- `extract-introns.py` gets data for training
 - `db_IME_Rose_WT_introns.fa` is the testing data
 - `TAIR9_chr_all.fas.gz` is the genome sequence
 - `Araport11_GFF3_genes_transposons.current.gff.gz` is all the genes

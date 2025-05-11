@@ -1,38 +1,8 @@
 import argparse
 import gzip
 import sys
+import korflab
 
-def anti(seq):
-	comp = str.maketrans('ACGTRYMKWSBDHV', 'TGCAYRKMWSVHDB')
-	anti = seq.translate(comp)[::-1]
-	return anti
-
-def getfp(filename):
-	if   filename.endswith('.gz'):
-		return gzip.open(filename, 'rt', encoding='ISO-8859-1')
-	else:
-		return open(filename, encoding='ISO-8859-1')
-
-def readfasta(filename):
-	name = None
-	seqs = []
-	fp = getfp(filename)
-	while True:
-		line = fp.readline()
-		if line == '': break
-		line = line.rstrip()
-		if line.startswith('>'):
-			if len(seqs) > 0:
-				seq = ''.join(seqs)
-				yield(name, seq)
-				name = line[1:]
-				seqs = []
-			else:
-				name = line[1:]
-		else:
-			seqs.append(line)
-	yield(name, ''.join(seqs))
-	fp.close()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('fasta')
@@ -44,7 +14,7 @@ parser.add_argument('--max-intron', type=int, default=600,
 arg = parser.parse_args()
 
 genome = {}
-fp = getfp(arg.gff)
+fp = korflab.getfp(arg.gff)
 for line in fp:
 	if line.startswith('#'): continue
 	f = line.split('\t')
@@ -68,7 +38,8 @@ seq2gff = {
 	'chloroplast': 'ChrC'
 }
 
-for defline, seq in readfasta(arg.fasta):
+seen = set()
+for defline, seq in korflab.readfasta(arg.fasta):
 	f = defline.split()
 	chrom = seq2gff[f[0]]
 	for tid, exons in genome[chrom].items():
@@ -83,13 +54,15 @@ for defline, seq in readfasta(arg.fasta):
 			if ilength < arg.min_intron: continue
 			if ilength > arg.max_intron: continue
 			iseq = seq[ib-1:ie]
+			if iseq in seen: continue
+			seen.add(iseq)
 			if exons[i]['str'] == '+':
 				rb = ib - gmin + 1
 				re = ie - gmin + 1
 				N = i
 			else:
 				flip = True
-				iseq = anti(iseq)
+				iseq = korflab.anti(iseq)
 				re = gmax - ib + 1
 				rb = gmax - ie + 1
 				N = len(exons) - i
