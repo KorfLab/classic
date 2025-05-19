@@ -5,47 +5,50 @@ Aspiring bioinformatics programmers often ask me how they can improve their
 skills. Like many other discliplines, a good place to start is by studying the
 classics. Since bioinformatics is generally performed in a command line
 Unix/Linux environment, you should have some familiarity with the CLI before
-you begin. You also need to be able to program at an intermediate level (nested
-data structures, file i/o, libraries, cli).
+you begin. You also need to be a competent programmer. These things should be
+familiar to you.
+
+- Nested data structures
+- File I/O
+- Libraries
+- CLI
 
 Historically, most bioinformatics software was written in C or Perl. Today,
-Python is a popular choice, but you may also see some C++, Go, Java, Julia,
-Rust, etc. The langauge you use it up to you. Ideally, you try these exercises
-in more than one language. To begin, fork the repo so you can `git push` to
-your own copy.
+Python is a popular choice. Although less common, you may see some software
+written in C++, Go, Java, Julia, Rust, etc. The langauge you use it up to you.
+Good programmers know multiple languages. To begin, fork the repo so you can
+`git push` to your own copy.
 
-- All programs should have a proper CLI
+- All programs should have a proper CLI (e.g. argparse in Python)
 - Programs should not have hard-coded paths or values
 - Programs should generally write to stdout
-- Limit the use of external libraries
+- Minimize external dependancies
 - Follow the style guide for your language
 
 ## Contents ##
 
-1. Sequences
-	- randomseq - generate random DNA and protein sequences
-	- readfasta - function to read FASTA files
-	- seqstats - provide statistics on FASTA files
-	- skewer - compute GC-skew and GC-composition in windows
-	- dust - mask low-complexity sequences
-	- translate - translate DNA to protein
-	- featureseq - extract sequences from FASTA + GFF
-2. Files
-	- blast
-	- genbank
-	- GFF genes and such
-	- vcf
-	- transfac
-	- randomaccess
-	- sam
-- Alignments
-	- blosum
-	- lambda
-	- repeatmasker
-- Patterns
-	- pwm
-	-
-- Trees
+- randomseq - generate random DNA and protein sequences
+- readfasta - function to read FASTA files
+- seqstats - provide statistics on FASTA files
+- skewer - compute GC-skew and GC-composition in windows
+- dust - mask low-complexity sequences
+- translate - translate DNA to protein
+- blosum - read a scoring matrix and compute its lambda
+- nw - global alignment
+- sw - local alignment
+- splice - align a spliced sequence to it's genomic source
+- featureseq - extract sequences from FASTA + GFF
+- kmers - count kmers in a FASTA file
+- imeter - reimplement the IMEter
+- pwm - generate a position weight matrix from a FASTA file
+- xpwm - assess performance of pwm using cross-validation
+- mm - create an n-th order Markov model from a FASTA file
+- xmm - assess performance of mm using cross-validation
+- rafasta - provide random access to a fasta file
+- readblast - read a BLAST report into a tidy data structure
+- readsam - read a SAM file into a tidy data structure
+- readgenome - read a FASTA + GFF into a genome data structure
+- viterbi -
 
 ## randomseq ##
 
@@ -96,6 +99,13 @@ Write a program that reports various statistics about a FASTA file.
 - Frequencies of each letter
 - An option to report codon usage (assuming the sequences are all CDS)
 
+## skewer ##
+
+Write a program the computes windowed GC-skew and GC composition along a genome
+sequence. The program should input FASTA and output BED. The program should
+have a variable window size, and the window should be computed efficiently (do
+not recompute each window).
+
 ## dust ##
 
 Write a low-complexity filter for nucleotide sequences. The output should be a
@@ -111,6 +121,14 @@ default, the program should translate the top strand, but there should be a
 switch that allows proteins to exist on either strand. In `--orf` mode, the
 program reports all open reading frames greater than some threshold length.
 
+## blosum ##
+
+## nw ##
+
+## sw ##
+
+## splice ##
+
 ## featureseq ##
 
 Write a program that reads a FASTA file and GFF file, and reports specific
@@ -118,20 +136,35 @@ features of the GFF in FASTA format. For example, if a user wants `exon`
 features, then the program reports the sequences of all exons in FASTA format.
 There should be an option `--plus` to convert all sequences to the plus strand.
 
+## kmers ##
+
+## imeter ##
+
+## pwm ##
+
+## xpwm ##
+
+## mm ##
+
+## xmm ##
+
+## rafasta ##
+
+## readblast ##
+
+## readsam ##
+
+## readgenome ##
+
+
+-----------------------------------------------------------------------------
 
 
 
-- Data Structures
-	- Vector
-	- Dictionary
-- File Parsers - reading stuff into tidy data structures
-	- Scoring matrices
-	- Phylogenetic trees
-	- Jaspar
-	- JSON
+
+- Vector
+- Dictionary
 - Patterns
-
-
 - Regex something
 - PWM
 - Markov model
@@ -141,7 +174,6 @@ There should be an option `--plus` to convert all sequences to the plus strand.
 - SQL
 - XML
 
-----
 
 
 - atg - build a pwm and assess its accuracy
