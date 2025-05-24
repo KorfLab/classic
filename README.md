@@ -8,10 +8,10 @@ Unix/Linux environment, you should have some familiarity with the CLI before
 you begin. You also need to be a competent programmer. These things should be
 familiar to you.
 
-- Nested data structures
-- File I/O
-- Libraries
-- CLI
+- Importing and creating function libraries
+- Unix-standard CLI libraries in your favorite language
+- Building and navigating arbitrarily complex data structures
+- File I/O for normal and compressed files
 
 Historically, most bioinformatics software was written in C or Perl. Today,
 Python is a popular choice. Although less common, you may see some software
@@ -36,19 +36,15 @@ Good programmers know multiple languages. To begin, fork the repo so you can
 - blosum - read a scoring matrix and compute its lambda
 - nw - global alignment
 - sw - local alignment
-- splice - align a spliced sequence to it's genomic source
 - featureseq - extract sequences from FASTA + GFF
-- kmers - count kmers in a FASTA file
+- introns - extract introns from FASTA + GFF
 - imeter - reimplement the IMEter
-- pwm - generate a position weight matrix from a FASTA file
-- xpwm - assess performance of pwm using cross-validation
-- mm - create an n-th order Markov model from a FASTA file
-- xmm - assess performance of mm using cross-validation
-- rafasta - provide random access to a fasta file
+- pwm - create and evaulate a position weight matrix
+- mm - create and evaluate an nth order Markov model
 - readblast - read a BLAST report into a tidy data structure
 - readsam - read a SAM file into a tidy data structure
 - readgenome - read a FASTA + GFF into a genome data structure
-- viterbi -
+- viterbi - maximum state path
 
 ## randomseq ##
 
@@ -85,11 +81,6 @@ Instead, you should read only one record at a time.
 Many FASTA files are stored compressed, so being able to read a compressed file
 is required, as is the ability to read from stdin.
 
-Random access to records within a FASTA file is often very useful. This
-behavior requires some sort of indexing and possibly persistent storage. Note
-that you cannot `seek()` with stdin and doing so with a gzipped file is not
-efficient.
-
 ## seqstats ##
 
 Write a program that reports various statistics about a FASTA file.
@@ -97,21 +88,21 @@ Write a program that reports various statistics about a FASTA file.
 - Total number of sequences and letters
 - Mean, median, and N50 of sequence lengths
 - Frequencies of each letter
-- An option to report codon usage (assuming the sequences are all CDS)
+- An option to report codon usage (assuming the sequences are all coding)
 
 ## skewer ##
 
-Write a program the computes windowed GC-skew and GC composition along a genome
-sequence. The program should input FASTA and output BED. The program should
-have a variable window size, and the window should be computed efficiently (do
-not recompute each window).
+Write a program the computes windowed GC-skew (G+C/G-C) and GC composition
+along a genome sequence. The program should input FASTA and output BED. The
+program should have a variable window size, and the window should be computed
+efficiently (do not recompute each window).
 
 ## dust ##
 
 Write a low-complexity filter for nucleotide sequences. The output should be a
 FASTA file. By default, low-complexity regions should be masked with Ns but you
 should provide a command line switch for lowercase masking (often called
-soft-masking).
+soft-masking). Again, don't recompute each window.
 
 ## translate ##
 
@@ -120,14 +111,23 @@ longest protein in each sequence and reports this as the encoded protein. By
 default, the program should translate the top strand, but there should be a
 switch that allows proteins to exist on either strand. In `--orf` mode, the
 program reports all open reading frames greater than some threshold length.
+This is designed for use with prokaryotic genomes.
 
 ## blosum ##
 
+Read a BLOSUM scoring matrix into a 2D structure. Compute lambda. Also compute
+the average percent identity and percent similarity.
+
 ## nw ##
+
+Write the classic Needleman-Wunsch algorithm for global alignment. There should
+be options for nucleotide match-mismatch scoring or protein scoring matrices
+(e.g. BLOSUM62).
 
 ## sw ##
 
-## splice ##
+Write the classic Smith-Waterman algorithm for local alignment. This is a minor
+variant of Needlman-Wunsch.
 
 ## featureseq ##
 
@@ -135,20 +135,26 @@ Write a program that reads a FASTA file and GFF file, and reports specific
 features of the GFF in FASTA format. For example, if a user wants `exon`
 features, then the program reports the sequences of all exons in FASTA format.
 There should be an option `--plus` to convert all sequences to the plus strand.
+There should also be an option for extracting `--extra` sequence on either side
+of the feature.
 
-## kmers ##
+## introns ##
+
+Most GFF files do not include the position of introns as they can be inferred
+from the exon coordinates. Add an option to extract introns to your
+`featureseq` program above.
 
 ## imeter ##
 
+Reproduce the original IMEter experiments...
+
 ## pwm ##
 
-## xpwm ##
+Make a PWM and evaluate its performance
 
 ## mm ##
 
-## xmm ##
-
-## rafasta ##
+Make a Markov model and evaluate its performance.
 
 ## readblast ##
 
@@ -156,6 +162,7 @@ There should be an option `--plus` to convert all sequences to the plus strand.
 
 ## readgenome ##
 
+## viterbi ##
 
 -----------------------------------------------------------------------------
 
